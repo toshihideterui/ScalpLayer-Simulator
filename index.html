@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="scalplayer-version" content="simulator-v1.0">
+  <title>ScalpLayer Simulator v1.0</title>
+  <style>
+    :root{--bg:#05070d;--panel:#10131c;--line:rgba(212,175,55,.28);--gold:#d4af37;--gold2:#f7dc75;--text:#f8fafc;--muted:#b8c0cc;--green:#22c55e;--red:#ef4444;--yellow:#facc15}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;padding:20px;color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,rgba(212,175,55,.18),transparent 28%),linear-gradient(180deg,#141925,var(--bg) 46%);line-height:1.65}
+    .container{max-width:1240px;margin:0 auto}.hero{text-align:center;padding:12px 0 24px}h1{margin:0;font-size:32px}h2{margin:0 0 14px;color:var(--gold2);font-size:21px}.sub,.small{color:var(--muted);font-size:13px}
+    .card{background:rgba(16,19,28,.96);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 18px 38px rgba(0,0,0,.32);overflow:hidden}.notice{background:rgba(212,175,55,.09);color:#f8e7a2}.judgement{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.10)}
+    label{display:block;margin:8px 0 6px;color:var(--muted);font-weight:800}input,button{width:100%;min-height:48px;border-radius:10px;border:1px solid rgba(212,175,55,.38);background:#070a11;color:var(--text);padding:12px 14px;font-size:15px;margin-bottom:10px}button{border:0;background:linear-gradient(135deg,var(--gold),#9f7d1d);color:#111827;font-weight:950;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:rgba(5,7,13,.68);border:1px solid rgba(212,175,55,.22);border-radius:12px;padding:14px}.stat span{display:block;color:var(--muted);font-size:13px}.stat strong{display:block;font-size:22px;margin-top:4px;overflow-wrap:anywhere}
+    .tableWrap{overflow-x:auto;margin-top:10px}table{width:100%;border-collapse:collapse;min-width:960px}th,td{border-bottom:1px solid rgba(148,163,184,.16);padding:9px 8px;text-align:left;font-size:13px;vertical-align:top}th{color:#fff;background:rgba(5,7,13,.92);position:sticky;top:0}.pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#f7e6a5;margin:2px;white-space:nowrap}
+    .good{color:#bbf7d0;font-weight:900}.bad{color:#fecaca;font-weight:900}.warn{color:#fde68a;font-weight:900}.heat-high{background:rgba(34,197,94,.20);color:#d9fbe4;font-weight:900}.heat-mid{background:rgba(250,204,21,.16);color:#fff3b0;font-weight:900}.heat-low{background:rgba(239,68,68,.17);color:#ffd2d2;font-weight:900}
+    @media(max-width:760px){body{padding:12px}h1{font-size:25px}.card{padding:16px;border-radius:12px}.grid{grid-template-columns:1fr}table{min-width:900px}}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero"><h1>ScalpLayer Simulator v1.0</h1><p class="sub">Finder v2.2のCore Rule A〜D / SELL Rule Aを、仮想エントリーとして決済方式別に検証します。</p></section>
+    <section class="card notice">入力はUSDJPY M1 CSVだけです。finder_results.json、session_layer.json等のJSON読込はありません。新条件探索ではなく、固定Core Ruleの決済検証です。</section>
+    <section class="card"><h2>1. USDJPY M1 CSV読み込み</h2><label for="csvFile">USDJPY M1 CSV</label><input id="csvFile" type="file" accept=".csv,text/csv"><button id="runBtn" onclick="runSimulator()">Simulator v1.0 検証実行</button><div id="status" class="small">CSVを選択してください。</div></section>
+    <section class="card"><h2>2. データ概要</h2><div id="summary" class="grid"><div class="stat"><span>読み込み本数</span><strong>--</strong></div><div class="stat"><span>有効本数</span><strong>--</strong></div><div class="stat"><span>期間</span><strong>--</strong></div><div class="stat"><span>解析対象本数</span><strong>--</strong></div></div></section>
+    <section class="card judgement"><h2>Final Judgement</h2><div id="finalJudgement"><strong>未判定</strong><br><span class="small">検証後に表示します。</span></div></section>
+    <section class="card"><h2>3. Rule別エントリー概要</h2><div id="entrySummary" class="tableWrap small">--</div></section>
+    <section class="card"><h2>4. 決済方式比較</h2><div id="exitComparison" class="tableWrap small">--</div></section>
+    <section class="card"><h2>5. Rule別ベスト決済ランキング</h2><div id="ruleBestExitRanking" class="tableWrap small">--</div></section>
+    <section class="card"><h2>6. 総合ランキング</h2><div id="overallRanking" class="tableWrap small">--</div></section>
+    <section class="card"><h2>7. Walk Forward Test</h2><div id="walkForwardResults" class="tableWrap small">--</div></section>
+    <section class="card"><h2>8. ScalpLayer本体実装案</h2><div id="implementationPlan" class="small">--</div></section>
+    <section class="card"><h2>9. simulator_results_v1.json 出力</h2><button id="downloadBtn" onclick="downloadJson()" disabled>simulator_results_v1.json をダウンロード</button></section>
+  </main>
+
+  <script>
+    const PIP=100, RSI_PERIOD=14, EMA_PERIOD=20, BB_PERIOD=20;
+    const TIME_EXITS=[5,10,15,30,45,60];
+    const SPREADS=[0,1,2];
+    const EXIT_METHODS=[
+      ...TIME_EXITS.map(m=>({name:`${m}分後決済`,type:"time",minutes:m})),
+      {name:"TP3 SL3",type:"fixed",tp:3,sl:3},{name:"TP5 SL5",type:"fixed",tp:5,sl:5},{name:"TP5 SL3",type:"fixed",tp:5,sl:3},{name:"TP8 SL5",type:"fixed",tp:8,sl:5},{name:"TP10 SL5",type:"fixed",tp:10,sl:5},{name:"TP12 SL6",type:"fixed",tp:12,sl:6},
+      {name:"建値移動 TP10 SL5 +5建値",type:"breakeven",tp:10,sl:5,trigger:5},
+      {name:"+5到達後 3pipsトレーリング",type:"trailing",trigger:5,trail:3},
+      {name:"+8到達後 4pipsトレーリング",type:"trailing",trigger:8,trail:4},
+      {name:"途中撤退 10分+1未満/15分+2未満",type:"early"}
+    ];
+    const CORE_RULES=[
+      {name:"Core Rule A",direction:"buy",conditions:["RSI < 30","直近10本pips <= -12"],match:e=>e.bar.rsi<30&&e.bar.recent10<=-12},
+      {name:"Core Rule B",direction:"buy",conditions:["RSI < 30","時間帯 = NY後半","ローソク = 陰線"],match:e=>e.bar.rsi<30&&e.bar.session==="NY後半"&&e.bar.candleType==="陰線"},
+      {name:"Core Rule C",direction:"buy",conditions:["RSI < 30","時間帯 = NY後半","ボラ = 0〜1"],match:e=>e.bar.rsi<30&&e.bar.session==="NY後半"&&e.bar.volBucket==="0〜1"},
+      {name:"Core Rule D",direction:"buy",conditions:["RSI < 30","直近10本pips = -8〜-4","急騰急落 = 通常"],match:e=>e.bar.rsi<30&&e.bar.recent10>-8&&e.bar.recent10<=-4&&e.bar.surgeType==="通常"},
+      {name:"SELL Rule A",direction:"sell",conditions:["RSI > 70","時間帯 = NY前半","BB位置 = 上バンド付近"],match:e=>e.bar.rsi>70&&e.bar.session==="NY前半"&&e.bar.bbPosition==="上バンド付近"}
+    ];
+    let simulatorResults=null;
+
+    async function runSimulator(){
+      const file=document.getElementById("csvFile").files[0];
+      if(!file){alert("USDJPY M1 CSVを選択してください。");return;}
+      document.getElementById("runBtn").disabled=true;document.getElementById("downloadBtn").disabled=true;
+      try{
+        setStatus("CSVを読み込み中...");
+        const text=await file.text(); await breathe();
+        const parsed=parseCsvBars(text);
+        if(parsed.bars.length<120)throw new Error("分析に必要なM1データが不足しています。");
+        setStatus(`${parsed.bars.length.toLocaleString()}本を読み込みました。特徴量を計算中...`);
+        enrichBars(parsed.bars); await breathe();
+        const entries=buildRuleEntries(parsed.bars);
+        setStatus("決済方式を比較中...");
+        await breathe();
+        const ruleEntrySummary=buildEntrySummary(entries);
+        const exitComparison=buildExitComparison(entries,parsed.bars);
+        const ruleBestExitRanking=buildRuleBest(exitComparison);
+        const overallRanking=buildOverall(exitComparison);
+        const walkForwardResults=buildWalkForward(entries,parsed.bars);
+        const implementationPlan=buildImplementationPlan(overallRanking,walkForwardResults);
+        const finalJudgement=buildFinalJudgement(overallRanking,walkForwardResults);
+        const warnings=buildWarnings(ruleEntrySummary,walkForwardResults);
+        simulatorResults={meta:{appVersion:"simulator-v1.0",symbol:"USDJPY",timeframe:"M1",sourceFileName:file.name,generatedAt:new Date().toISOString(),loadedRows:parsed.loadedRows,validBars:parsed.bars.length,missingRows:parsed.missingRows,startTime:formatDateTime(parsed.bars[0].time),endTime:formatDateTime(parsed.bars[parsed.bars.length-1].time),analyzedBars:entries.length},ruleEntrySummary,exitComparison,ruleBestExitRanking,overallRanking,walkForwardResults,implementationPlan,finalJudgement,warnings};
+        renderAll(simulatorResults);
+        document.getElementById("downloadBtn").disabled=false;
+        setStatus("検証完了。simulator_results_v1.jsonを出力できます。");
+      }catch(e){console.error(e);setStatus("エラー："+e.message);}
+      finally{document.getElementById("runBtn").disabled=false;}
+    }
+
+    function buildRuleEntries(bars){
+      const allEntries=[];
+      CORE_RULES.forEach(rule=>{
+        let lastIndex=-9999;
+        for(let i=30;i<bars.length-60;i++){
+          const entry={index:i,bar:bars[i],ruleName:rule.name,direction:rule.direction,conditions:rule.conditions};
+          if(i-lastIndex<30)continue;
+          if(rule.match(entry)){allEntries.push(entry);lastIndex=i;}
+        }
+      });
+      return allEntries;
+    }
+
+    function buildEntrySummary(entries){
+      return CORE_RULES.map(rule=>{
+        const rows=entries.filter(e=>e.ruleName===rule.name);
+        return {ruleName:rule.name,direction:rule.direction.toUpperCase(),conditions:rule.conditions,count:rows.length,firstEntry:rows[0]?formatDateTime(rows[0].bar.time):"--",lastEntry:rows.length?formatDateTime(rows[rows.length-1].bar.time):"--"};
+      });
+    }
+
+    function buildExitComparison(entries,bars){
+      const rows=[];
+      CORE_RULES.forEach(rule=>{
+        const ruleEntries=entries.filter(e=>e.ruleName===rule.name);
+        EXIT_METHODS.forEach(method=>{
+          SPREADS.forEach(spread=>{
+            const trades=ruleEntries.map(e=>simulateExit(bars,e.index,rule.direction,method,spread));
+            rows.push({ruleName:rule.name,direction:rule.direction.toUpperCase(),exitMethod:method.name,spread,...metricsFromTrades(trades)});
+          });
+        });
+      });
+      return rows;
+    }
+
+    function simulateExit(bars,index,direction,method,spread){
+      const entry=bars[index].close;
+      let exitPips=0, hold=30, movedBE=false, trailStop=null, bestFav=0;
+      const signedPips=(price)=>direction==="buy"?(price-entry)*PIP:(entry-price)*PIP;
+      const highFav=(bar)=>direction==="buy"?(bar.high-entry)*PIP:(entry-bar.low)*PIP;
+      const lowAdv=(bar)=>direction==="buy"?(bar.low-entry)*PIP:(entry-bar.high)*PIP;
+      if(method.type==="time"){
+        hold=method.minutes; exitPips=signedPips(bars[Math.min(index+hold,bars.length-1)].close);
+      }else{
+        for(let m=1;m<=60&&index+m<bars.length;m++){
+          const bar=bars[index+m];
+          const fav=highFav(bar), adv=lowAdv(bar); bestFav=Math.max(bestFav,fav);
+          if(method.type==="fixed"){
+            if(adv<=-method.sl){exitPips=-method.sl;hold=m;break;}
+            if(fav>=method.tp){exitPips=method.tp;hold=m;break;}
+          }else if(method.type==="breakeven"){
+            if(fav>=method.trigger)movedBE=true;
+            const stop=movedBE?0:-method.sl;
+            if(adv<=stop){exitPips=stop;hold=m;break;}
+            if(fav>=method.tp){exitPips=method.tp;hold=m;break;}
+          }else if(method.type==="trailing"){
+            if(fav>=method.trigger){
+              const candidate=bestFav-method.trail;
+              trailStop=trailStop===null?candidate:Math.max(trailStop,candidate);
+            }
+            if(trailStop!==null&&adv<=trailStop){exitPips=trailStop;hold=m;break;}
+          }else if(method.type==="early"){
+            if(m===10&&signedPips(bar.close)<1){exitPips=signedPips(bar.close);hold=m;break;}
+            if(m===15&&signedPips(bar.close)<2){exitPips=signedPips(bar.close);hold=m;break;}
+          }
+          if(m===60){exitPips=signedPips(bar.close);hold=m;}
+        }
+      }
+      return {pips:round(exitPips-spread,2),hold};
+    }
+
+    function metricsFromTrades(trades){
+      const rows=trades.filter(t=>Number.isFinite(t.pips));
+      const wins=rows.filter(t=>t.pips>0), losses=rows.filter(t=>t.pips<0);
+      const gp=sum(wins.map(t=>t.pips)), gl=Math.abs(sum(losses.map(t=>t.pips))), total=sum(rows.map(t=>t.pips));
+      let equity=0, peak=0, maxDD=0, loseStreak=0, maxLoseStreak=0;
+      rows.forEach(t=>{equity+=t.pips;peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);if(t.pips<0){loseStreak++;maxLoseStreak=Math.max(maxLoseStreak,loseStreak)}else if(t.pips>0){loseStreak=0}});
+      return {count:rows.length,winRate:rows.length?round(wins.length/rows.length*100,1):0,pf:gl>0?round(gp/gl,2):gp>0?999:0,expectancy:rows.length?round(total/rows.length,2):0,totalPips:round(total,1),maxLosingStreak:maxLoseStreak,maxDrawdown:round(maxDD,1),avgHoldMinutes:rows.length?round(sum(rows.map(t=>t.hold))/rows.length,1):0};
+    }
+
+    function buildRuleBest(exitRows){
+      return CORE_RULES.flatMap(rule=>exitRows.filter(r=>r.ruleName===rule.name).sort(rankExit).slice(0,5).map((r,i)=>({...r,rank:i+1,adoption:judgeAdoption(r)})));
+    }
+    function buildOverall(exitRows){return exitRows.filter(r=>r.spread===2).sort(rankExit).slice(0,10).map((r,i)=>({...r,rank:i+1,adoption:judgeAdoption(r)}));}
+    function rankExit(a,b){return scoreExit(b)-scoreExit(a)}
+    function scoreExit(r){return (r.expectancy*35)+(Math.min(r.pf,10)*12)+(Math.log(Math.max(r.count,1))*8)-(r.maxLosingStreak*3)-(r.maxDrawdown*1.2)+(r.count>=50?15:0)}
+    function judgeAdoption(r){if(r.spread===2&&r.count>=50&&r.pf>=1.3&&r.expectancy>0&&r.maxLosingStreak<=6)return"A：実装候補";if(r.expectancy>0&&r.pf>=1.1)return"B：追加検証";if(r.expectancy>0)return"C：弱い";return"D：不採用"}
+
+    function buildWalkForward(entries,bars){
+      const split=Math.floor(bars.length*0.7), rows=[];
+      CORE_RULES.forEach(rule=>{
+        const ruleEntries=entries.filter(e=>e.ruleName===rule.name);
+        EXIT_METHODS.forEach(method=>{
+          const train=ruleEntries.filter(e=>e.index<split).map(e=>simulateExit(bars,e.index,rule.direction,method,2));
+          const test=ruleEntries.filter(e=>e.index>=split).map(e=>simulateExit(bars,e.index,rule.direction,method,2));
+          const a=metricsFromTrades(train), b=metricsFromTrades(test);
+          const degradation=a.expectancy?round((a.expectancy-b.expectancy)/Math.abs(a.expectancy)*100,1):0;
+          const judgement=b.count<30?"サンプル不足":b.pf>=1.3&&b.expectancy>0?"有望":b.pf>=1?"追加検証":"過剰最適化疑い";
+          rows.push({ruleName:rule.name,exitMethod:method.name,trainCount:a.count,testCount:b.count,trainPF:a.pf,testPF:b.pf,trainExpectancy:a.expectancy,testExpectancy:b.expectancy,degradationRate:degradation,overfitJudgement:judgement});
+        });
+      });
+      return rows.sort((a,b)=>(b.testExpectancy-a.testExpectancy)||(b.testPF-a.testPF)).slice(0,80);
+    }
+
+    function buildImplementationPlan(overall,wf){
+      const top=overall[0];
+      const second=overall[1];
+      return {candidate1:top?`${top.ruleName} / ${top.direction} / 決済:${top.exitMethod} / ${top.adoption}`:"候補なし",candidate2:second?`${second.ruleName} / ${second.direction} / 決済:${second.exitMethod} / ${second.adoption}`:"候補なし",sellRule:"SELL Rule Aはランキング上位かつWalk Forward有望の場合のみ参考表示。弱い場合はデモ検証限定。",note:"本体移植前に、別期間CSVとデモ運用で再確認してください。"};
+    }
+    function buildFinalJudgement(overall,wf){
+      const top=overall[0];
+      if(!top)return{rank:"D",label:"優位性なし",reason:"採用候補がありません。"};
+      const topWf=wf.find(x=>x.ruleName===top.ruleName&&x.exitMethod===top.exitMethod);
+      if(top.adoption.startsWith("A")&&topWf&&topWf.overfitJudgement==="有望")return{rank:"A",label:"実装候補あり",reason:`${top.ruleName} / ${top.exitMethod} はspread2後期待値${signed(top.expectancy)}pips、PF${top.pf}、Walk Forwardも有望です。`};
+      if(top.expectancy>0)return{rank:"B",label:"追加検証",reason:`${top.ruleName} / ${top.exitMethod} はプラスですが、Walk ForwardまたはDD確認が必要です。`};
+      return{rank:"D",label:"優位性なし",reason:"spread2後で有望な決済方式がありません。"};
+    }
+    function buildWarnings(summary,wf){const w=[];summary.forEach(r=>{if(r.count<50)w.push(`${r.ruleName}: エントリー件数${r.count}で少なめです。`)});wf.forEach(r=>{if(r.testCount<30)w.push(`${r.ruleName} ${r.exitMethod}: 後半検証件数30未満です。`)});return w.slice(0,80)}
+
+    function renderAll(d){
+      const m=d.meta;
+      document.getElementById("summary").innerHTML=`<div class="stat"><span>読み込み本数</span><strong>${m.loadedRows.toLocaleString()}</strong></div><div class="stat"><span>有効本数</span><strong>${m.validBars.toLocaleString()}</strong></div><div class="stat"><span>期間</span><strong>${escapeHtml(m.startTime)}<br>${escapeHtml(m.endTime)}</strong></div><div class="stat"><span>解析対象本数</span><strong>${m.analyzedBars.toLocaleString()}</strong></div>`;
+      document.getElementById("finalJudgement").innerHTML=`<strong>${d.finalJudgement.rank}：${escapeHtml(d.finalJudgement.label)}</strong><br><span class="small">${escapeHtml(d.finalJudgement.reason)}</span>`;
+      renderEntrySummary(d.ruleEntrySummary);renderExitComparison(d.exitComparison);renderRuleBest(d.ruleBestExitRanking);renderOverall(d.overallRanking);renderWalkForward(d.walkForwardResults);renderPlan(d.implementationPlan);
+    }
+    function renderEntrySummary(rows){document.getElementById("entrySummary").innerHTML=tableHtml(rows,["Rule","方向","条件","件数","最初","最後"],r=>[r.ruleName,r.direction,pills(r.conditions),r.count,r.firstEntry,r.lastEntry],true)}
+    function renderExitComparison(rows){document.getElementById("exitComparison").innerHTML=tableHtml(rows.slice(0,220),["Rule","方向","決済方式","spread","件数","勝率","PF","期待値","総pips","最大連敗","最大DD","平均保有"],r=>[r.ruleName,r.direction,r.exitMethod,r.spread,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),r.maxLosingStreak,pips(-r.maxDrawdown),`${r.avgHoldMinutes}分`],false)}
+    function renderRuleBest(rows){document.getElementById("ruleBestExitRanking").innerHTML=tableHtml(rows,["順位","Rule","方向","決済方式","spread","件数","勝率","PF","期待値","総pips","最大連敗","最大DD","平均保有","採用判定"],r=>[r.rank,r.ruleName,r.direction,r.exitMethod,r.spread,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),r.maxLosingStreak,pips(-r.maxDrawdown),`${r.avgHoldMinutes}分`,r.adoption],false)}
+    function renderOverall(rows){document.getElementById("overallRanking").innerHTML=tableHtml(rows,["順位","Rule","方向","決済方式","件数","勝率","PF","期待値","総pips","最大連敗","最大DD","採用判定"],r=>[r.rank,r.ruleName,r.direction,r.exitMethod,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),r.maxLosingStreak,pips(-r.maxDrawdown),r.adoption],false)}
+    function renderWalkForward(rows){document.getElementById("walkForwardResults").innerHTML=tableHtml(rows,["Rule","決済方式","前半件数","後半件数","前半PF","後半PF","前半期待値","後半期待値","劣化率","判定"],r=>[r.ruleName,r.exitMethod,r.trainCount,r.testCount,fmt(r.trainPF),fmt(r.testPF),pips(r.trainExpectancy),pips(r.testExpectancy),`${fmt(r.degradationRate)}%`,r.overfitJudgement],false)}
+    function renderPlan(p){document.getElementById("implementationPlan").innerHTML=`<div class="stat"><strong>実装候補1</strong><div>${escapeHtml(p.candidate1)}</div></div><br><div class="stat"><strong>実装候補2</strong><div>${escapeHtml(p.candidate2)}</div></div><br><div class="stat"><strong>SELL Rule A</strong><div>${escapeHtml(p.sellRule)}</div></div><br><div class="stat"><strong>注意</strong><div>${escapeHtml(p.note)}</div></div>`}
+
+    function parseCsvBars(text){const rows=parseCsv(text).filter(r=>r.some(c=>String(c).trim()!==""));const headers=rows[0].map(h=>normalizeHeader(h));const hasHeader=headers.some(h=>["datetime","time","date","日時"].includes(h))||headers.includes("close")||headers.includes("終値");const body=hasHeader?rows.slice(1):rows;const idx=hasHeader?{time:findHeader(headers,["日時","datetime","time","date"]),open:findHeader(headers,["始値","open"]),high:findHeader(headers,["高値","high"]),low:findHeader(headers,["安値","low"]),close:findHeader(headers,["終値","close"])}:{time:0,open:1,high:2,low:3,close:4};let missingRows=0;const bars=body.map((row,sourceIndex)=>{const b={sourceIndex,time:parseDate(row[idx.time]),open:toNumber(row[idx.open]),high:toNumber(row[idx.high]),low:toNumber(row[idx.low]),close:toNumber(row[idx.close])};if(!b.time||![b.open,b.high,b.low,b.close].every(Number.isFinite))missingRows++;return b}).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time).map((b,i)=>({...b,index:i}));return{bars,loadedRows:body.length,missingRows}}
+    function enrichBars(bars){let ema=bars[0].close;const alpha=2/(EMA_PERIOD+1);let avgGain=0,avgLoss=0;bars.forEach((bar,i)=>{if(i===0)bar.ema20=bar.close;else{ema=bar.close*alpha+ema*(1-alpha);bar.ema20=ema}if(i>0){const diff=bar.close-bars[i-1].close,gain=Math.max(0,diff),loss=Math.max(0,-diff);if(i<=RSI_PERIOD){avgGain+=gain;avgLoss+=loss;if(i===RSI_PERIOD){avgGain/=RSI_PERIOD;avgLoss/=RSI_PERIOD;bar.rsi=calcRsi(avgGain,avgLoss)}}else{avgGain=(avgGain*(RSI_PERIOD-1)+gain)/RSI_PERIOD;avgLoss=(avgLoss*(RSI_PERIOD-1)+loss)/RSI_PERIOD;bar.rsi=calcRsi(avgGain,avgLoss)}}const s=bars.slice(Math.max(0,i-BB_PERIOD+1),i+1);if(s.length>=BB_PERIOD){const mid=average(s.map(b=>b.close)),sd=Math.sqrt(average(s.map(b=>Math.pow(b.close-mid,2))));bar.bbMid=mid;bar.bbUpper=mid+sd*2;bar.bbLower=mid-sd*2;bar.bbPosition=classifyBb(bar)}else bar.bbPosition="BB不足";bar.session=getSession(bar.time);bar.recent10=recentPips(bars,i,10);bar.recent3=recentPips(bars,i,3);bar.candleType=bar.close>=bar.open?"陽線":"陰線";const v=bars.slice(Math.max(0,i-9),i+1);bar.volatility=average(v.map(b=>(b.high-b.low)*PIP));bar.volBucket=bucketVol(bar.volatility);bar.surgeType=bar.recent3>=3?"急騰":bar.recent3<=-3?"急落":"通常"})}
+    function downloadJson(){if(!simulatorResults)return;const blob=new Blob([JSON.stringify(simulatorResults,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="simulator_results_v1.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+    function tableHtml(rows,headers,mapper,trusted){if(!rows.length)return"該当データがありません。";return`<table><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${mapper(row).map(cell=>`<td class="${String(cell).includes("%")?heatClass(parseFloat(cell)):""}">${trusted?cell:escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+    function pills(items){return items.map(x=>`<span class="pill">${escapeHtml(x)}</span>`).join(" ")}
+    function heatClass(rate){if(!Number.isFinite(rate))return"";if(rate>=60)return"heat-high";if(rate<=45)return"heat-low";return"heat-mid"}
+    function classifyBb(bar){const range=bar.bbUpper-bar.bbLower,near=range*.12;if(bar.close>bar.bbUpper)return"上バンド超え";if(bar.bbUpper-bar.close<=near)return"上バンド付近";if(bar.close<bar.bbLower)return"下バンド割れ";if(bar.close-bar.bbLower<=near)return"下バンド付近";if(Math.abs(bar.close-bar.bbMid)<=near)return"ミドル付近";return bar.close>bar.bbMid?"ミドル上":"ミドル下"}
+    function getSession(date){const h=date.getHours();if(h>=6&&h<=14)return"東京";if(h>=15&&h<=17)return"ロンドン前半";if(h>=18&&h<=20)return"ロンドン後半";if(h>=21&&h<=23)return"NY前半";if(h>=0&&h<=2)return"NY後半";return"深夜"}
+    function bucketVol(v){if(v<1)return"0〜1";if(v<2)return"1〜2";if(v<3)return"2〜3";if(v<5)return"3〜5";return"5以上"}
+    function recentPips(bars,i,n){return i>=n?round((bars[i].close-bars[i-n].close)*PIP,2):0}
+    function calcRsi(gain,loss){if(loss===0)return 100;const rs=gain/loss;return round(100-100/(1+rs),1)}
+    function parseCsv(text){const rows=[];let row=[],cell="",quote=false;for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];if(quote&&ch==='"'&&next==='"'){cell+='"';i++;continue}if(ch==='"'){quote=!quote;continue}if(!quote&&ch===","){row.push(cell);cell="";continue}if(!quote&&(ch==="\n"||ch==="\r")){if(ch==="\r"&&next==="\n")i++;row.push(cell);rows.push(row);row=[];cell="";continue}cell+=ch}row.push(cell);rows.push(row);return rows}
+    function normalizeHeader(v){return String(v||"").trim().toLowerCase().replace(/\s+/g,"_")}
+    function findHeader(headers,names){for(const name of names){const i=headers.indexOf(String(name).toLowerCase());if(i>=0)return i}return-1}
+    function parseDate(value){const raw=String(value||"").trim().replace(/\./g,"-").replace("T"," ");const m=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);if(m)return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]||0));const d=new Date(raw);return Number.isFinite(d.getTime())?d:null}
+    function toNumber(v){const n=Number(String(v??"").replace(/,/g,"").trim());return Number.isFinite(n)?n:NaN}
+    function average(a){return a.length?sum(a)/a.length:0}function sum(a){return a.reduce((x,y)=>x+Number(y||0),0)}function round(v,d=2){return Number(Number(v||0).toFixed(d))}function fmt(v){return Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{maximumFractionDigits:2}):"--"}function pct(v){return`${fmt(v)}%`}function pips(v){return`${Number(v)>=0?"+":""}${fmt(v)}pips`}function signed(v){return`${Number(v)>=0?"+":""}${fmt(v)}`}function formatDateTime(d){return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`}function pad(v){return String(v).padStart(2,"0")}function setStatus(t){document.getElementById("status").textContent=t}function breathe(){return new Promise(r=>setTimeout(r,0))}function escapeHtml(v){return String(v??"").replace(/[&<>"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[s]))}
+  </script>
+</body>
+</html>
