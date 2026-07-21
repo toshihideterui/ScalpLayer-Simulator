@@ -3,38 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="scalplayer-version" content="simulator-v1.0">
-  <title>ScalpLayer Simulator v1.0</title>
+  <meta name="scalplayer-version" content="simulator-v2.4-final">
+  <title>ScalpLayer Simulator v2.4 Final Final</title>
   <style>
     :root{--bg:#05070d;--panel:#10131c;--line:rgba(212,175,55,.28);--gold:#d4af37;--gold2:#f7dc75;--text:#f8fafc;--muted:#b8c0cc;--green:#22c55e;--red:#ef4444;--yellow:#facc15}
     *{box-sizing:border-box} body{margin:0;min-height:100vh;padding:20px;color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,rgba(212,175,55,.18),transparent 28%),linear-gradient(180deg,#141925,var(--bg) 46%);line-height:1.65}
     .container{max-width:1240px;margin:0 auto}.hero{text-align:center;padding:12px 0 24px}h1{margin:0;font-size:32px}h2{margin:0 0 14px;color:var(--gold2);font-size:21px}.sub,.small{color:var(--muted);font-size:13px}
     .card{background:rgba(16,19,28,.96);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 18px 38px rgba(0,0,0,.32);overflow:hidden}.notice{background:rgba(212,175,55,.09);color:#f8e7a2}.judgement{border-color:rgba(34,197,94,.34);background:rgba(34,197,94,.10)}
-    label{display:block;margin:8px 0 6px;color:var(--muted);font-weight:800}input,button{width:100%;min-height:48px;border-radius:10px;border:1px solid rgba(212,175,55,.38);background:#070a11;color:var(--text);padding:12px 14px;font-size:15px;margin-bottom:10px}button{border:0;background:linear-gradient(135deg,var(--gold),#9f7d1d);color:#111827;font-weight:950;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+    label{display:block;margin:8px 0 6px;color:var(--muted);font-weight:800}input,select,button{width:100%;min-height:48px;border-radius:10px;border:1px solid rgba(212,175,55,.38);background:#070a11;color:var(--text);padding:12px 14px;font-size:15px;margin-bottom:10px}button{border:0;background:linear-gradient(135deg,var(--gold),#9f7d1d);color:#111827;font-weight:950;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:rgba(5,7,13,.68);border:1px solid rgba(212,175,55,.22);border-radius:12px;padding:14px}.stat span{display:block;color:var(--muted);font-size:13px}.stat strong{display:block;font-size:22px;margin-top:4px;overflow-wrap:anywhere}
     .tableWrap{overflow-x:auto;margin-top:10px}table{width:100%;border-collapse:collapse;min-width:960px}th,td{border-bottom:1px solid rgba(148,163,184,.16);padding:9px 8px;text-align:left;font-size:13px;vertical-align:top}th{color:#fff;background:rgba(5,7,13,.92);position:sticky;top:0}.pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#f7e6a5;margin:2px;white-space:nowrap}
-    .good{color:#bbf7d0;font-weight:900}.bad{color:#fecaca;font-weight:900}.warn{color:#fde68a;font-weight:900}.heat-high{background:rgba(34,197,94,.20);color:#d9fbe4;font-weight:900}.heat-mid{background:rgba(250,204,21,.16);color:#fff3b0;font-weight:900}.heat-low{background:rgba(239,68,68,.17);color:#ffd2d2;font-weight:900}
-    @media(max-width:760px){body{padding:12px}h1{font-size:25px}.card{padding:16px;border-radius:12px}.grid{grid-template-columns:1fr}table{min-width:900px}}
+    .chartGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.chartBox{background:rgba(5,7,13,.68);border:1px solid rgba(212,175,55,.22);border-radius:12px;padding:14px;min-width:0}.chartBox h3{margin:0 0 10px;font-size:15px;color:#f8fafc}.chartCanvas{display:block;width:100%;height:260px;background:#070a11;border-radius:9px}.analysisNote{margin:0 0 12px;padding:10px 12px;border-left:3px solid var(--gold);background:rgba(212,175,55,.07)}
+    .researchDrop{border:1px dashed rgba(212,175,55,.55);border-radius:12px;padding:16px;background:rgba(212,175,55,.05);text-align:center}.researchDrop.drag{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.65)}.fileList{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.fileTag{padding:5px 9px;border-radius:999px;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.22);font-size:12px}.statusDot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;background:#64748b}.statusDot.ok{background:var(--green)}.statusDot.warn{background:var(--yellow)}.statusDot.bad{background:var(--red)}.good{color:#bbf7d0;font-weight:900}.bad{color:#fecaca;font-weight:900}.warn{color:#fde68a;font-weight:900}.heat-high{background:rgba(34,197,94,.20);color:#d9fbe4;font-weight:900}.heat-mid{background:rgba(250,204,21,.16);color:#fff3b0;font-weight:900}.heat-low{background:rgba(239,68,68,.17);color:#ffd2d2;font-weight:900}
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.toolbar>*{flex:1 1 180px}.toolbar button{margin-bottom:10px}
+    .heatmap{overflow-x:auto}.heatmap table{min-width:760px}.heatmap td{text-align:center;font-weight:900;min-width:82px}
+    .scoreBar{height:10px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden;margin-top:7px}.scoreBar>i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#facc15,#22c55e)}
+    .badgeBest{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.35);color:#bbf7d0;font-weight:900}
+    .badgeWorst{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.35);color:#fecaca;font-weight:900}
+    @media print{
+      body{background:#fff;color:#111;padding:0}.card{box-shadow:none;background:#fff;color:#111;border:1px solid #bbb;break-inside:avoid}
+      .hero,.notice,.toolbar button,#runBtn,#researchClearBtn,#downloadBtn{display:none!important}
+      h2,.sub,.small,label{color:#222!important}.stat,.chartBox{background:#fff;border-color:#bbb}.chartCanvas{background:#fff}
+      table{color:#111}th{background:#eee;color:#111}
+    }
+
+    @media(max-width:760px){body{padding:12px}h1{font-size:25px}.card{padding:16px;border-radius:12px}.grid,.chartGrid{grid-template-columns:1fr}table{min-width:900px}.chartCanvas{height:230px}}
   </style>
 </head>
 <body>
   <main class="container">
-    <section class="hero"><h1>ScalpLayer Simulator v1.0</h1><p class="sub">Finder v2.2のCore Rule A〜D / SELL Rule Aを、仮想エントリーとして決済方式別に検証します。</p></section>
-    <section class="card notice">入力はUSDJPY M1 CSVだけです。finder_results.json、session_layer.json等のJSON読込はありません。新条件探索ではなく、固定Core Ruleの決済検証です。</section>
-    <section class="card"><h2>1. USDJPY M1 CSV読み込み</h2><label for="csvFile">USDJPY M1 CSV</label><input id="csvFile" type="file" accept=".csv,text/csv"><button id="runBtn" onclick="runSimulator()">Simulator v1.0 検証実行</button><div id="status" class="small">CSVを選択してください。</div></section>
-    <section class="card"><h2>2. データ概要</h2><div id="summary" class="grid"><div class="stat"><span>読み込み本数</span><strong>--</strong></div><div class="stat"><span>有効本数</span><strong>--</strong></div><div class="stat"><span>期間</span><strong>--</strong></div><div class="stat"><span>解析対象本数</span><strong>--</strong></div></div></section>
+    <section class="hero"><div class="pill" style="margin-bottom:10px">FINAL RELEASE</div><h1>ScalpLayer Simulator v2.4 Final</h1><p class="sub">Final Edition｜Multi Symbol・Research CSV・Walk Forward・高度分析を統合した完成版。</p></section>
+    
+
+<section class="card">
+<h2>v2.4 Research Dashboard</h2>
+<div class="grid">
+<div class="stat"><span>Strategy Score</span><strong id="strategyScore">--</strong><div class="scoreBar"><i id="strategyScoreBar" style="width:0%"></i></div></div>
+<div class="stat"><span>Research Health</span><strong id="researchHealth">--</strong></div>
+<div class="stat"><span>Best Rule</span><strong id="bestRuleDash">--</strong></div>
+<div class="stat"><span>Best Exit</span><strong id="bestExitDash">--</strong></div>
+<div class="stat"><span>Best Month</span><strong id="bestMonthDash">--</strong></div>
+<div class="stat"><span>Worst Month</span><strong id="worstMonthDash">--</strong></div>
+<div class="stat"><span>Best Session</span><strong id="bestSessionDash">--</strong></div>
+<div class="stat"><span>Walk Forward</span><strong id="walkForwardDash">--</strong></div>
+</div>
+<div class="toolbar" style="margin-top:14px">
+<div><label for="equityRange">Equity表示範囲</label><select id="equityRange" onchange="refreshEquityChart()"><option value="ALL">全トレード</option><option value="50">直近50件</option><option value="100">直近100件</option><option value="200">直近200件</option></select></div>
+<div><button type="button" onclick="window.print()">PDFレポートとして印刷</button></div>
+</div>
+</section>
+
+
+    <section class="card notice">USDJPY・GBPJPYのM1 CSVに対応しています。通貨ペアはCSVのSymbol列またはファイル名から自動判定し、判定できない場合は手動選択を使用します。新条件探索ではなく、固定Core Ruleの決済検証です。</section>
+
+    <section class="card judgement">
+      <h2>Final Release</h2>
+      <div class="small">
+        このバージョンはScalpLayer Simulatorの完成版です。今後の検証では、Research EAから出力したCSVを読み込み、Rule・決済方式・時間帯・曜日・月別成績を比較してください。
+      </div>
+    </section>
+    <section class="card"><h2>1. M1 CSV読み込み</h2><label for="symbolMode">通貨ペア</label><select id="symbolMode"><option value="AUTO">自動判定</option><option value="USDJPY">USDJPY</option><option value="GBPJPY">GBPJPY</option></select><label for="csvFile">M1 CSVファイル</label><input id="csvFile" type="file" accept=".csv,text/csv"><button id="runBtn" onclick="runSimulator()">Simulator v2.4 Final 検証実行</button><div id="status" class="small">USDJPYまたはGBPJPYのM1 CSVを選択してください。</div></section>
+    <section class="card"><h2>2. Research CSV連携</h2><p class="small">ResearchSummary、VirtualTrade、NearMiss、TopNGなどを複数選択できます。ファイル名とヘッダーから種類を自動認識します。</p><div id="researchDrop" class="researchDrop"><label for="researchFiles">Research CSVを選択またはドロップ</label><input id="researchFiles" type="file" accept=".csv,text/csv" multiple><div id="researchFileList" class="fileList"><span class="fileTag">未読込</span></div></div><button id="researchClearBtn" type="button" onclick="clearResearchFiles()">Research CSVをクリア</button><div id="researchStatus" class="small">Research CSVは任意です。M1シミュレーションだけでも使用できます。</div></section>
+    <section class="card"><h2>3. Research Dashboard</h2><div id="researchDashboard" class="grid"><div class="stat"><span>Research Status</span><strong><span class="statusDot"></span>未接続</strong></div><div class="stat"><span>読込ファイル</span><strong>0</strong></div><div class="stat"><span>RunID</span><strong>--</strong></div><div class="stat"><span>Research Symbol</span><strong>--</strong></div></div><div id="researchValidation" class="small" style="margin-top:12px">検証情報はCSV読込後に表示します。</div></section>
+    <section class="card"><h2>4. データ概要</h2><div id="summary" class="grid"><div class="stat"><span>Symbol</span><strong>--</strong></div><div class="stat"><span>Broker Symbol</span><strong>--</strong></div><div class="stat"><span>Timeframe</span><strong>M1</strong></div><div class="stat"><span>PipSize</span><strong>--</strong></div><div class="stat"><span>読み込み本数</span><strong>--</strong></div><div class="stat"><span>有効本数</span><strong>--</strong></div><div class="stat"><span>期間</span><strong>--</strong></div><div class="stat"><span>解析対象本数</span><strong>--</strong></div></div></section>
     <section class="card judgement"><h2>Final Judgement</h2><div id="finalJudgement"><strong>未判定</strong><br><span class="small">検証後に表示します。</span></div></section>
-    <section class="card"><h2>3. Rule別エントリー概要</h2><div id="entrySummary" class="tableWrap small">--</div></section>
-    <section class="card"><h2>4. 決済方式比較</h2><div id="exitComparison" class="tableWrap small">--</div></section>
-    <section class="card"><h2>5. Rule別ベスト決済ランキング</h2><div id="ruleBestExitRanking" class="tableWrap small">--</div></section>
-    <section class="card"><h2>6. 総合ランキング</h2><div id="overallRanking" class="tableWrap small">--</div></section>
-    <section class="card"><h2>7. Walk Forward Test</h2><div id="walkForwardResults" class="tableWrap small">--</div></section>
-    <section class="card"><h2>8. ScalpLayer本体実装案</h2><div id="implementationPlan" class="small">--</div></section>
-    <section class="card"><h2>9. simulator_results_v1.json 出力</h2><button id="downloadBtn" onclick="downloadJson()" disabled>simulator_results_v1.json をダウンロード</button></section>
+    <section class="card"><h2>5. Rule別エントリー概要</h2><div id="entrySummary" class="tableWrap small">--</div></section>
+    <section class="card"><h2>6. 決済方式比較</h2><div id="exitComparison" class="tableWrap small">--</div></section>
+    <section class="card"><h2>7. Rule別ベスト決済ランキング</h2><div id="ruleBestExitRanking" class="tableWrap small">--</div></section>
+    <section class="card"><h2>8. 総合ランキング</h2><div id="overallRanking" class="tableWrap small">--</div></section>
+    <section class="card"><h2>9. Walk Forward Test</h2><div id="walkForwardResults" class="tableWrap small">--</div></section>
+    <section class="card"><h2>10. ScalpLayer本体実装案</h2><div id="implementationPlan" class="small">--</div></section>
+    <section class="card"><h2>11. 高度分析ダッシュボード</h2><div id="analysisOverview" class="analysisNote small">M1シミュレーション実行後、総合ランキング1位の戦略を分析します。</div><div class="chartGrid"><div class="chartBox"><h3>Equity Curve（累積pips）</h3><canvas id="equityChart" class="chartCanvas"></canvas></div><div class="chartBox"><h3>月別損益</h3><canvas id="monthlyChart" class="chartCanvas"></canvas></div><div class="chartBox"><h3>時間帯別損益</h3><canvas id="sessionChart" class="chartCanvas"></canvas></div><div class="chartBox"><h3>曜日別損益</h3><canvas id="weekdayChart" class="chartCanvas"></canvas></div><div class="chartBox"><h3>Rule別総pips</h3><canvas id="ruleChart" class="chartCanvas"></canvas></div><div class="chartBox"><h3>MFE / MAE平均</h3><canvas id="mfeMaeChart" class="chartCanvas"></canvas></div></div></section>
+    <section class="card"><h2>12. 月別・時間帯別・曜日別 詳細</h2><h3 style="margin:8px 0;color:#f8fafc">月別</h3><div id="monthlyAnalysis" class="tableWrap small">--</div><h3 style="margin:18px 0 8px;color:#f8fafc">時間帯別</h3><div id="sessionAnalysis" class="tableWrap small">--</div><h3 style="margin:18px 0 8px;color:#f8fafc">曜日別</h3><div id="weekdayAnalysis" class="tableWrap small">--</div></section>
+
+    <section class="card"><h2>13. Rule比較ヒートマップ</h2><div id="ruleHeatmap" class="heatmap small">M1シミュレーション実行後に表示します。</div></section>
+    <section class="card"><h2>14. 時間帯 × 曜日ヒートマップ</h2><p class="small">総pipsを色分けします。緑はプラス、赤はマイナス、黄色は中立付近です。</p><div id="sessionWeekdayHeatmap" class="heatmap small">M1シミュレーション実行後に表示します。</div></section>
+    <section class="card"><h2>15. 月別ランキング</h2><div id="monthlyRanking" class="tableWrap small">M1シミュレーション実行後に表示します。</div></section>
+
+    <section class="card"><h2>16. Research Summary</h2><div id="researchSummary" class="tableWrap small">Research CSV未読込</div></section>
+    <section class="card"><h2>17. NearMiss / TopNG分析</h2><h3 style="margin:8px 0;color:#f8fafc">NearMiss上位</h3><div id="nearMissRanking" class="tableWrap small">Research CSV未読込</div><h3 style="margin:18px 0 8px;color:#f8fafc">TopNG</h3><div id="topNgTable" class="tableWrap small">Research CSV未読込</div></section>
+    <section class="card"><h2>18. Virtual Tradeプレビュー</h2><div id="virtualTradeTable" class="tableWrap small">Research CSV未読込</div></section>
+    <section class="card"><h2>19. simulator_results_v2_4_final.json 出力</h2><button id="downloadBtn" onclick="downloadJson()" disabled>simulator_results_v2_4_final.json をダウンロード</button></section>
   </main>
 
   <script>
-    const PIP=100, RSI_PERIOD=14, EMA_PERIOD=20, BB_PERIOD=20;
+    let PIP=100;
+    let CURRENT_CONTEXT={symbol:"",brokerSymbol:"",digits:null,point:null,pipSize:0.01};
+    const RSI_PERIOD=14, EMA_PERIOD=20, BB_PERIOD=20;
     const TIME_EXITS=[5,10,15,30,45,60];
     const SPREADS=[0,1,2];
     const EXIT_METHODS=[
@@ -53,15 +109,172 @@
       {name:"SELL Rule A",direction:"sell",conditions:["RSI > 70","時間帯 = NY前半","BB位置 = 上バンド付近"],match:e=>e.bar.rsi>70&&e.bar.session==="NY前半"&&e.bar.bbPosition==="上バンド付近"}
     ];
     let simulatorResults=null;
+    let RESEARCH_STATE={files:[],datasets:{},summary:null,validation:[]};
+
+
+    document.addEventListener("DOMContentLoaded",()=>{
+      const input=document.getElementById("researchFiles");
+      const drop=document.getElementById("researchDrop");
+      input.addEventListener("change",e=>loadResearchFiles([...e.target.files]));
+      ["dragenter","dragover"].forEach(name=>drop.addEventListener(name,e=>{e.preventDefault();drop.classList.add("drag")}));
+      ["dragleave","drop"].forEach(name=>drop.addEventListener(name,e=>{e.preventDefault();drop.classList.remove("drag")}));
+      drop.addEventListener("drop",e=>loadResearchFiles([...e.dataTransfer.files].filter(f=>f.name.toLowerCase().endsWith(".csv"))));
+    });
+
+    async function loadResearchFiles(files){
+      if(!files.length)return;
+      setResearchStatus("Research CSVを読み込み中...");
+      const datasets={};
+      const fileMeta=[];
+      for(const file of files){
+        try{
+          const text=await file.text();
+          const parsed=parseGenericCsv(text);
+          const type=detectResearchType(file.name,parsed.headers);
+          if(!datasets[type])datasets[type]=[];
+          datasets[type].push(...parsed.rows);
+          fileMeta.push({name:file.name,type,rows:parsed.rows.length,headers:parsed.headers});
+          await breathe();
+        }catch(e){fileMeta.push({name:file.name,type:"error",rows:0,error:e.message});}
+      }
+      RESEARCH_STATE={files:fileMeta,datasets,summary:buildResearchSummary(fileMeta,datasets),validation:[]};
+      RESEARCH_STATE.validation=validateResearchState(RESEARCH_STATE);
+      renderResearchIntegration();
+      setResearchStatus(`${fileMeta.filter(x=>x.type!=="error").length}件のResearch CSVを読み込みました。`);
+      if(simulatorResults){simulatorResults.research=exportResearchState();renderResearchIntegration();}
+    }
+
+    function clearResearchFiles(){
+      RESEARCH_STATE={files:[],datasets:{},summary:null,validation:[]};
+      document.getElementById("researchFiles").value="";
+      document.getElementById("researchFileList").innerHTML='<span class="fileTag">未読込</span>';
+      document.getElementById("researchStatus").textContent="Research CSVは任意です。M1シミュレーションだけでも使用できます。";
+      renderResearchIntegration();
+    }
+
+    function parseGenericCsv(text){
+      const rows=parseCsv(text).filter(r=>r.some(c=>String(c).trim()!==""));
+      if(!rows.length)return{headers:[],rows:[]};
+      const headers=rows[0].map((h,i)=>String(h||`Column${i+1}`).trim());
+      const body=rows.slice(1).map(row=>Object.fromEntries(headers.map((h,i)=>[h,String(row[i]??"").trim()])));
+      return{headers,rows:body};
+    }
+
+    function detectResearchType(fileName,headers){
+      const n=String(fileName).toLowerCase().replace(/[\s_\-]/g,"");
+      const h=headers.map(x=>String(x).toLowerCase()).join("|");
+      if(n.includes("researchsummary")||h.includes("summarykey")||h.includes("validationreadiness"))return"ResearchSummary";
+      if(n.includes("virtualtrade")||((h.includes("entry")||h.includes("entrytime"))&&(h.includes("exit")||h.includes("exitpips"))))return"VirtualTrade";
+      if(n.includes("nearmiss")||h.includes("ngreasons")||h.includes("ngcount"))return"NearMiss";
+      if(n.includes("topng")||h.includes("ngreason")&&h.includes("count"))return"TopNG";
+      if(n.includes("manifest"))return"Manifest";
+      if(n.includes("runconfig"))return"RunConfig";
+      if(n.includes("datasetquality"))return"DatasetQuality";
+      if(n.includes("engineactivity"))return"EngineActivity";
+      if(n.includes("periodcomparison"))return"PeriodComparison";
+      return"Other";
+    }
+
+    function firstValue(rows,keys){
+      for(const row of rows||[]){
+        for(const [k,v] of Object.entries(row)){
+          if(keys.some(key=>normalizeHeader(k)===normalizeHeader(key))&&String(v).trim())return String(v).trim();
+        }
+      }
+      return"";
+    }
+
+    function collectValues(datasets,keys){
+      const out=new Set();
+      Object.values(datasets).flat().forEach(row=>Object.entries(row).forEach(([k,v])=>{
+        if(keys.some(key=>normalizeHeader(k)===normalizeHeader(key))&&String(v).trim())out.add(String(v).trim());
+      }));
+      return[...out];
+    }
+
+    function buildResearchSummary(files,datasets){
+      const runIds=collectValues(datasets,["RunID","RunId","Run_ID"]);
+      const symbols=collectValues(datasets,["Symbol","CurrencyPair","BrokerSymbol"]);
+      const versions=collectValues(datasets,["Version","ResearchVersion","AppVersion","SchemaVersion"]);
+      return{fileCount:files.filter(x=>x.type!=="error").length,totalRows:Object.values(datasets).reduce((a,x)=>a+x.length,0),runIds,symbols,versions,types:Object.fromEntries(Object.entries(datasets).map(([k,v])=>[k,v.length]))};
+    }
+
+    function validateResearchState(state){
+      const v=[]; const s=state.summary;
+      if(!s||!s.fileCount)return v;
+      if(s.runIds.length>1)v.push({level:"warn",text:`複数のRunIDを検出: ${s.runIds.join(", ")}`});
+      if(s.symbols.length>1)v.push({level:"warn",text:`複数のSymbolを検出: ${s.symbols.join(", ")}`});
+      if(CURRENT_CONTEXT.symbol&&s.symbols.length&&!s.symbols.some(x=>x.toUpperCase().includes(CURRENT_CONTEXT.symbol)))v.push({level:"bad",text:`M1 CSV (${CURRENT_CONTEXT.symbol}) とResearch CSV (${s.symbols.join(", ")}) のSymbolが一致しません。`});
+      ["ResearchSummary","VirtualTrade","NearMiss","TopNG"].forEach(t=>{if(!state.datasets[t]?.length)v.push({level:"warn",text:`${t}.csv相当のデータは未読込です。`})});
+      if(!v.some(x=>x.level==="bad"))v.unshift({level:"ok",text:"読み込めた範囲では重大な不整合はありません。"});
+      return v;
+    }
+
+    function exportResearchState(){return{summary:RESEARCH_STATE.summary,files:RESEARCH_STATE.files.map(({headers,...x})=>x),validation:RESEARCH_STATE.validation,datasets:RESEARCH_STATE.datasets};}
+
+    function renderResearchIntegration(){
+      const state=RESEARCH_STATE,s=state.summary;
+      const list=document.getElementById("researchFileList");
+      list.innerHTML=state.files.length?state.files.map(f=>`<span class="fileTag">${escapeHtml(f.name)}｜${escapeHtml(f.type)}｜${Number(f.rows||0).toLocaleString()}行</span>`).join(""):'<span class="fileTag">未読込</span>';
+      const status=!s?.fileCount?{label:"未接続",cls:""}:state.validation.some(x=>x.level==="bad")?{label:"要確認",cls:"bad"}:state.validation.some(x=>x.level==="warn")?{label:"接続済み・警告あり",cls:"warn"}:{label:"Connected",cls:"ok"};
+      document.getElementById("researchDashboard").innerHTML=`<div class="stat"><span>Research Status</span><strong><span class="statusDot ${status.cls}"></span>${status.label}</strong></div><div class="stat"><span>読込ファイル</span><strong>${s?.fileCount||0}</strong></div><div class="stat"><span>RunID</span><strong>${escapeHtml(s?.runIds?.join(", ")||"--")}</strong></div><div class="stat"><span>Research Symbol</span><strong>${escapeHtml(s?.symbols?.join(", ")||"--")}</strong></div>`;
+      document.getElementById("researchValidation").innerHTML=state.validation.length?state.validation.map(x=>`<div class="${x.level==='bad'?'bad':x.level==='warn'?'warn':'good'}">● ${escapeHtml(x.text)}</div>`).join(""):"検証情報はCSV読込後に表示します。";
+      renderResearchSummaryTable();renderNearMiss();renderTopNg();renderVirtualTrades();
+    }
+
+    function renderResearchSummaryTable(){
+      const s=RESEARCH_STATE.summary;
+      if(!s){document.getElementById("researchSummary").textContent="Research CSV未読込";return;}
+      const rows=[{item:"読込ファイル",value:s.fileCount},{item:"総データ行",value:s.totalRows},{item:"RunID",value:s.runIds.join(", ")||"--"},{item:"Symbol",value:s.symbols.join(", ")||"--"},{item:"Version",value:s.versions.join(", ")||"--"},...Object.entries(s.types).map(([k,v])=>({item:k,value:v}))];
+      document.getElementById("researchSummary").innerHTML=tableHtml(rows,["項目","値"],r=>[r.item,r.value],false);
+    }
+
+    function renderNearMiss(){
+      const rows=RESEARCH_STATE.datasets.NearMiss||[];
+      if(!rows.length){document.getElementById("nearMissRanking").textContent="NearMiss CSV未読込";return;}
+      const counts={};
+      rows.forEach(r=>{
+        const reason=firstValue([r],["NGReasons","NGReason","Reason","Reasons"])||"不明";
+        reason.split(/[|;,]/).map(x=>x.trim()).filter(Boolean).forEach(x=>counts[x]=(counts[x]||0)+1);
+      });
+      const ranked=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,30).map(([reason,count],i)=>({rank:i+1,reason,count,rate:round(count/rows.length*100,1)}));
+      document.getElementById("nearMissRanking").innerHTML=tableHtml(ranked,["順位","NG理由","件数","構成比"],r=>[r.rank,r.reason,r.count,`${r.rate}%`],false);
+    }
+
+    function renderTopNg(){
+      const rows=RESEARCH_STATE.datasets.TopNG||[];
+      if(!rows.length){document.getElementById("topNgTable").textContent="TopNG CSV未読込";return;}
+      document.getElementById("topNgTable").innerHTML=genericObjectTable(rows.slice(0,100));
+    }
+
+    function renderVirtualTrades(){
+      const rows=RESEARCH_STATE.datasets.VirtualTrade||[];
+      if(!rows.length){document.getElementById("virtualTradeTable").textContent="VirtualTrade CSV未読込";return;}
+      document.getElementById("virtualTradeTable").innerHTML=genericObjectTable(rows.slice(0,200));
+    }
+
+    function genericObjectTable(rows){
+      if(!rows.length)return"該当データがありません。";
+      const priority=["RunID","Symbol","Date","Time","EntryTime","ExitTime","Engine","Rule","Direction","EntryPrice","ExitPrice","Pips","ProfitPips","MFE","MAE","NGReasons","Count"];
+      const all=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+      const headers=[...priority.filter(x=>all.includes(x)),...all.filter(x=>!priority.includes(x))].slice(0,14);
+      return tableHtml(rows,headers,r=>headers.map(h=>r[h]??""),false);
+    }
+
+    function setResearchStatus(t){document.getElementById("researchStatus").textContent=t;}
 
     async function runSimulator(){
       const file=document.getElementById("csvFile").files[0];
-      if(!file){alert("USDJPY M1 CSVを選択してください。");return;}
+      if(!file){alert("M1 CSVを選択してください。");return;}
       document.getElementById("runBtn").disabled=true;document.getElementById("downloadBtn").disabled=true;
       try{
         setStatus("CSVを読み込み中...");
         const text=await file.text(); await breathe();
         const parsed=parseCsvBars(text);
+        CURRENT_CONTEXT=resolveSymbolContext(parsed,file);
+        PIP=1/CURRENT_CONTEXT.pipSize;
+        RESEARCH_STATE.validation=validateResearchState(RESEARCH_STATE);
+        renderResearchIntegration();
         if(parsed.bars.length<120)throw new Error("分析に必要なM1データが不足しています。");
         setStatus(`${parsed.bars.length.toLocaleString()}本を読み込みました。特徴量を計算中...`);
         enrichBars(parsed.bars); await breathe();
@@ -76,12 +289,45 @@
         const implementationPlan=buildImplementationPlan(overallRanking,walkForwardResults);
         const finalJudgement=buildFinalJudgement(overallRanking,walkForwardResults);
         const warnings=buildWarnings(ruleEntrySummary,walkForwardResults);
-        simulatorResults={meta:{appVersion:"simulator-v1.0",symbol:"USDJPY",timeframe:"M1",sourceFileName:file.name,generatedAt:new Date().toISOString(),loadedRows:parsed.loadedRows,validBars:parsed.bars.length,missingRows:parsed.missingRows,startTime:formatDateTime(parsed.bars[0].time),endTime:formatDateTime(parsed.bars[parsed.bars.length-1].time),analyzedBars:entries.length},ruleEntrySummary,exitComparison,ruleBestExitRanking,overallRanking,walkForwardResults,implementationPlan,finalJudgement,warnings};
+        const advancedAnalysis=buildAdvancedAnalysis(entries,parsed.bars,overallRanking,exitComparison);
+        simulatorResults={meta:{appVersion:"simulator-v2.4-final",edition:"Final Edition",symbol:CURRENT_CONTEXT.symbol,brokerSymbol:CURRENT_CONTEXT.brokerSymbol,timeframe:"M1",digits:CURRENT_CONTEXT.digits,point:CURRENT_CONTEXT.point,pipSize:CURRENT_CONTEXT.pipSize,sourceFileName:file.name,generatedAt:new Date().toISOString(),loadedRows:parsed.loadedRows,validBars:parsed.bars.length,missingRows:parsed.missingRows,startTime:formatDateTime(parsed.bars[0].time),endTime:formatDateTime(parsed.bars[parsed.bars.length-1].time),analyzedBars:entries.length},ruleEntrySummary,exitComparison,ruleBestExitRanking,overallRanking,walkForwardResults,implementationPlan,finalJudgement,warnings,advancedAnalysis,research:exportResearchState()};
         renderAll(simulatorResults);
         document.getElementById("downloadBtn").disabled=false;
-        setStatus("検証完了。simulator_results_v1.jsonを出力できます。");
+        setStatus(`${CURRENT_CONTEXT.symbol}の検証完了。Final版の分析を完了しました。`);
       }catch(e){console.error(e);setStatus("エラー："+e.message);}
       finally{document.getElementById("runBtn").disabled=false;}
+    }
+
+    function resolveSymbolContext(parsed,file){
+      const selected=document.getElementById("symbolMode").value;
+      const fileName=String(file.name||"").toUpperCase();
+      const rawFromCsv=String(parsed.detectedSymbol||"").trim().toUpperCase();
+      const rawCandidate=rawFromCsv||fileName;
+      let symbol="";
+      if(selected!=="AUTO")symbol=selected;
+      else if(rawCandidate.includes("GBPJPY"))symbol="GBPJPY";
+      else if(rawCandidate.includes("USDJPY"))symbol="USDJPY";
+      if(!symbol)throw new Error("通貨ペアを自動判定できませんでした。通貨ペアをUSDJPYまたはGBPJPYから選択してください。");
+      const brokerSymbol=rawFromCsv||extractBrokerSymbol(fileName,symbol)||symbol;
+      const digits=detectDigits(parsed.bars);
+      const point=Math.pow(10,-digits);
+      const pipSize=symbol.endsWith("JPY")?0.01:0.0001;
+      return{symbol,brokerSymbol,digits,point,pipSize};
+    }
+    function extractBrokerSymbol(fileName,symbol){
+      const m=fileName.match(new RegExp(symbol+"[A-Z0-9._#-]*","i"));
+      return m?m[0].replace(/\.CSV$/i,""):"";
+    }
+    function detectDigits(bars){
+      if(!bars.length)return 3;
+      const sample=bars.slice(0,Math.min(200,bars.length));
+      let maxDigits=0;
+      sample.forEach(b=>[b.open,b.high,b.low,b.close].forEach(v=>{
+        const t=String(v);
+        const p=t.includes(".")?t.split(".")[1].length:0;
+        maxDigits=Math.max(maxDigits,p);
+      }));
+      return maxDigits||3;
     }
 
     function buildRuleEntries(bars){
@@ -120,16 +366,19 @@
 
     function simulateExit(bars,index,direction,method,spread){
       const entry=bars[index].close;
-      let exitPips=0, hold=30, movedBE=false, trailStop=null, bestFav=0;
+      let exitPips=0, hold=30, movedBE=false, trailStop=null, bestFav=0, worstAdv=0;
       const signedPips=(price)=>direction==="buy"?(price-entry)*PIP:(entry-price)*PIP;
       const highFav=(bar)=>direction==="buy"?(bar.high-entry)*PIP:(entry-bar.low)*PIP;
       const lowAdv=(bar)=>direction==="buy"?(bar.low-entry)*PIP:(entry-bar.high)*PIP;
+      const observe=(bar)=>{const fav=highFav(bar),adv=lowAdv(bar);bestFav=Math.max(bestFav,fav);worstAdv=Math.min(worstAdv,adv);return{fav,adv}};
       if(method.type==="time"){
-        hold=method.minutes; exitPips=signedPips(bars[Math.min(index+hold,bars.length-1)].close);
+        hold=method.minutes;
+        for(let m=1;m<=hold&&index+m<bars.length;m++)observe(bars[index+m]);
+        exitPips=signedPips(bars[Math.min(index+hold,bars.length-1)].close);
       }else{
         for(let m=1;m<=60&&index+m<bars.length;m++){
           const bar=bars[index+m];
-          const fav=highFav(bar), adv=lowAdv(bar); bestFav=Math.max(bestFav,fav);
+          const {fav,adv}=observe(bar);
           if(method.type==="fixed"){
             if(adv<=-method.sl){exitPips=-method.sl;hold=m;break;}
             if(fav>=method.tp){exitPips=method.tp;hold=m;break;}
@@ -139,10 +388,7 @@
             if(adv<=stop){exitPips=stop;hold=m;break;}
             if(fav>=method.tp){exitPips=method.tp;hold=m;break;}
           }else if(method.type==="trailing"){
-            if(fav>=method.trigger){
-              const candidate=bestFav-method.trail;
-              trailStop=trailStop===null?candidate:Math.max(trailStop,candidate);
-            }
+            if(fav>=method.trigger){const candidate=bestFav-method.trail;trailStop=trailStop===null?candidate:Math.max(trailStop,candidate);}
             if(trailStop!==null&&adv<=trailStop){exitPips=trailStop;hold=m;break;}
           }else if(method.type==="early"){
             if(m===10&&signedPips(bar.close)<1){exitPips=signedPips(bar.close);hold=m;break;}
@@ -151,7 +397,7 @@
           if(m===60){exitPips=signedPips(bar.close);hold=m;}
         }
       }
-      return {pips:round(exitPips-spread,2),hold};
+      return {pips:round(exitPips-spread,2),hold,mfe:round(bestFav,2),mae:round(worstAdv,2)};
     }
 
     function metricsFromTrades(trades){
@@ -187,6 +433,137 @@
       return rows.sort((a,b)=>(b.testExpectancy-a.testExpectancy)||(b.testPF-a.testPF)).slice(0,80);
     }
 
+    function buildAdvancedAnalysis(entries,bars,overall,exitRows){
+      const top=overall[0];
+      if(!top)return{strategy:null,trades:[],equity:[],monthly:[],sessions:[],weekdays:[],rules:[],mfeMae:{avgMfe:0,avgMae:0}};
+      const rule=CORE_RULES.find(r=>r.name===top.ruleName);
+      const method=EXIT_METHODS.find(m=>m.name===top.exitMethod);
+      if(!rule||!method)return{strategy:null,trades:[],equity:[],monthly:[],sessions:[],weekdays:[],rules:[],mfeMae:{avgMfe:0,avgMae:0}};
+      const trades=entries.filter(e=>e.ruleName===rule.name).map((e,i)=>{
+        const r=simulateExit(bars,e.index,rule.direction,method,2);
+        const d=e.bar.time;
+        return{no:i+1,time:formatDateTime(d),timestamp:d.getTime(),month:`${d.getFullYear()}-${pad(d.getMonth()+1)}`,weekday:["日","月","火","水","木","金","土"][d.getDay()],session:e.bar.session,pips:r.pips,hold:r.hold,mfe:r.mfe,mae:r.mae};
+      });
+      let eq=0;const equity=trades.map(t=>({label:t.time,value:round(eq+=t.pips,2)}));
+      const aggregate=(key,order)=>{
+        const map={};trades.forEach(t=>{const k=t[key]||"不明";(map[k]??=[]).push(t)});
+        let rows=Object.entries(map).map(([label,ts])=>({label,...metricsFromTrades(ts)}));
+        if(order)rows.sort((a,b)=>order.indexOf(a.label)-order.indexOf(b.label));else rows.sort((a,b)=>String(a.label).localeCompare(String(b.label)));
+        return rows;
+      };
+      const monthly=aggregate("month");
+      const sessions=aggregate("session",["東京","ロンドン前半","ロンドン後半","NY前半","NY後半","深夜"]);
+      const weekdays=aggregate("weekday",["月","火","水","木","金","土","日"]);
+      const rules=CORE_RULES.map(r=>{const best=exitRows.filter(x=>x.ruleName===r.name&&x.spread===2).sort(rankExit)[0];return{label:r.name,value:best?best.totalPips:0,expectancy:best?best.expectancy:0,pf:best?best.pf:0,count:best?best.count:0}});
+      return{strategy:{ruleName:top.ruleName,direction:top.direction,exitMethod:top.exitMethod,spread:top.spread,count:top.count,pf:top.pf,expectancy:top.expectancy,totalPips:top.totalPips},trades,equity,monthly,sessions,weekdays,rules,mfeMae:{avgMfe:trades.length?round(average(trades.map(t=>t.mfe)),2):0,avgMae:trades.length?round(average(trades.map(t=>t.mae)),2):0},sessionWeekday:buildSessionWeekdayHeatmap(trades)};
+    }
+
+    function renderAdvancedAnalysis(a){
+      const box=document.getElementById("analysisOverview");
+      if(!a?.strategy){box.textContent="分析対象となる戦略がありません。";["equityChart","monthlyChart","sessionChart","weekdayChart","ruleChart","mfeMaeChart"].forEach(clearCanvas);return;}
+      const s=a.strategy;
+      box.innerHTML=`<strong>${escapeHtml(s.ruleName)} / ${escapeHtml(s.direction)} / ${escapeHtml(s.exitMethod)}</strong>（spread ${s.spread}）｜件数 ${s.count}｜PF ${fmt(s.pf)}｜期待値 ${pips(s.expectancy)}｜総損益 ${pips(s.totalPips)}`;
+      refreshEquityChart();
+      drawBarChart("monthlyChart",a.monthly.map(x=>x.label),a.monthly.map(x=>x.totalPips));
+      drawBarChart("sessionChart",a.sessions.map(x=>x.label),a.sessions.map(x=>x.totalPips));
+      drawBarChart("weekdayChart",a.weekdays.map(x=>x.label),a.weekdays.map(x=>x.totalPips));
+      drawBarChart("ruleChart",a.rules.map(x=>x.label.replace("Core ","")),a.rules.map(x=>x.value));
+      drawBarChart("mfeMaeChart",["平均MFE","平均MAE"],[a.mfeMae.avgMfe,a.mfeMae.avgMae]);
+      renderAnalysisTable("monthlyAnalysis",a.monthly);
+      renderAnalysisTable("sessionAnalysis",a.sessions);
+      renderAnalysisTable("weekdayAnalysis",a.weekdays);
+    }
+    function renderAnalysisTable(id,rows){document.getElementById(id).innerHTML=tableHtml(rows,["区分","件数","勝率","PF","期待値","総pips","最大DD","平均保有"],r=>[r.label,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),pips(-r.maxDrawdown),`${r.avgHoldMinutes}分`],false)}
+    function prepareCanvas(id){const c=document.getElementById(id);if(!c)return null;const rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=Math.max(300,Math.floor(rect.width*dpr));c.height=Math.max(180,Math.floor(rect.height*dpr));const ctx=c.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);return{c,ctx,w:rect.width,h:rect.height};}
+    function clearCanvas(id){const p=prepareCanvas(id);if(p)p.ctx.clearRect(0,0,p.w,p.h)}
+    function drawAxes(ctx,w,h,min,max){ctx.strokeStyle="rgba(184,192,204,.28)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(44,14);ctx.lineTo(44,h-30);ctx.lineTo(w-10,h-30);ctx.stroke();if(min<0&&max>0){const y=14+(max/(max-min))*(h-44);ctx.strokeStyle="rgba(247,220,117,.35)";ctx.beginPath();ctx.moveTo(44,y);ctx.lineTo(w-10,y);ctx.stroke();}}
+    function drawLineChart(id,values){const p=prepareCanvas(id);if(!p)return;const{ctx,w,h}=p;ctx.clearRect(0,0,w,h);if(!values.length){ctx.fillStyle="#b8c0cc";ctx.fillText("データなし",12,24);return;}let min=Math.min(0,...values),max=Math.max(0,...values);if(max===min){max+=1;min-=1}drawAxes(ctx,w,h,min,max);ctx.strokeStyle="#f7dc75";ctx.lineWidth=2;ctx.beginPath();values.forEach((v,i)=>{const x=44+(i/Math.max(1,values.length-1))*(w-56),y=14+((max-v)/(max-min))*(h-44);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle="#b8c0cc";ctx.font="11px system-ui";ctx.fillText(fmt(max),4,20);ctx.fillText(fmt(min),4,h-31);ctx.fillText(`${values.length} trades`,w-80,h-10)}
+    function drawBarChart(id,labels,values){const p=prepareCanvas(id);if(!p)return;const{ctx,w,h}=p;ctx.clearRect(0,0,w,h);if(!values.length){ctx.fillStyle="#b8c0cc";ctx.fillText("データなし",12,24);return;}let min=Math.min(0,...values),max=Math.max(0,...values);if(max===min){max+=1;min-=1}drawAxes(ctx,w,h,min,max);const plotW=w-58,bw=Math.max(3,plotW/values.length*.62);values.forEach((v,i)=>{const x=46+(i+.5)*plotW/values.length-bw/2,y0=14+(max/(max-min))*(h-44),yv=14+((max-v)/(max-min))*(h-44);ctx.fillStyle=v>=0?"rgba(34,197,94,.78)":"rgba(239,68,68,.78)";ctx.fillRect(x,Math.min(y0,yv),bw,Math.max(1,Math.abs(y0-yv)));if(labels.length<=12){ctx.save();ctx.translate(x+bw/2,h-25);ctx.rotate(-.55);ctx.fillStyle="#b8c0cc";ctx.font="10px system-ui";ctx.fillText(String(labels[i]).slice(0,12),0,0);ctx.restore();}});ctx.fillStyle="#b8c0cc";ctx.font="11px system-ui";ctx.fillText(fmt(max),4,20);ctx.fillText(fmt(min),4,h-31)}
+
+
+    function strategyScore(top,wf){
+      if(!top)return 0;
+      const wfRow=(wf||[]).find(x=>x.ruleName===top.ruleName&&x.exitMethod===top.exitMethod);
+      const pfScore=Math.min(30,Math.max(0,(Number(top.pf)-0.8)*25));
+      const expScore=Math.min(25,Math.max(0,Number(top.expectancy)*10));
+      const countScore=Math.min(15,Math.log10(Math.max(1,Number(top.count)))*7);
+      const ddScore=Math.max(0,15-Math.min(15,Number(top.maxDrawdown||0)/10));
+      const wfScore=!wfRow?0:wfRow.overfitJudgement==="有望"?15:wfRow.overfitJudgement==="追加検証"?8:2;
+      return Math.round(Math.max(0,Math.min(100,pfScore+expScore+countScore+ddScore+wfScore)));
+    }
+
+    function researchHealthScore(research){
+      const s=research?.summary;
+      if(!s?.fileCount)return{score:0,label:"未接続"};
+      let score=55;
+      const v=research.validation||[];
+      score-=v.filter(x=>x.level==="warn").length*7;
+      score-=v.filter(x=>x.level==="bad").length*20;
+      if((s.runIds||[]).length===1)score+=10;
+      if((s.symbols||[]).length===1)score+=10;
+      if((s.types||{}).ResearchSummary)score+=8;
+      if((s.types||{}).VirtualTrade)score+=8;
+      score=Math.max(0,Math.min(100,score));
+      return{score,label:score>=90?"★★★★★":score>=75?"★★★★☆":score>=60?"★★★☆☆":score>=40?"★★☆☆☆":"★☆☆☆☆"};
+    }
+
+    function buildRuleHeatmap(exitRows){
+      return CORE_RULES.map(rule=>{
+        const best=(exitRows||[]).filter(x=>x.ruleName===rule.name&&x.spread===2).sort(rankExit)[0];
+        if(!best)return{ruleName:rule.name,count:0,winRate:0,pf:0,expectancy:0,totalPips:0,maxDrawdown:0,score:0};
+        return{ruleName:rule.name,count:best.count,winRate:best.winRate,pf:best.pf,expectancy:best.expectancy,totalPips:best.totalPips,maxDrawdown:best.maxDrawdown,score:Math.round(Math.max(0,Math.min(100,(best.pf*20)+(best.expectancy*8)+(Math.log10(Math.max(1,best.count))*8)-(best.maxDrawdown/10))))};
+      });
+    }
+
+    function buildSessionWeekdayHeatmap(trades){
+      const sessions=["東京","ロンドン前半","ロンドン後半","NY前半","NY後半","深夜"];
+      const weekdays=["月","火","水","木","金"];
+      const map={};
+      sessions.forEach(s=>{map[s]={};weekdays.forEach(w=>map[s][w]=[])});
+      (trades||[]).forEach(t=>{if(map[t.session]&&map[t.session][t.weekday])map[t.session][t.weekday].push(t)});
+      return{sessions,weekdays,values:Object.fromEntries(sessions.map(s=>[s,Object.fromEntries(weekdays.map(w=>[w,round(sum(map[s][w].map(x=>x.pips)),1)]))]))};
+    }
+
+    function renderRuleHeatmap(rows){
+      const el=document.getElementById("ruleHeatmap");
+      if(!rows?.length){el.textContent="データがありません。";return;}
+      const cols=["Rule","件数","勝率","PF","期待値","総pips","最大DD","Score"];
+      const valueClass=(key,v)=>{
+        const n=Number(v);
+        if(key==="勝率")return n>=55?"heat-high":n<=45?"heat-low":"heat-mid";
+        if(key==="PF")return n>=1.3?"heat-high":n<1?"heat-low":"heat-mid";
+        if(key==="期待値"||key==="総pips")return n>0?"heat-high":n<0?"heat-low":"heat-mid";
+        if(key==="最大DD")return n<=50?"heat-high":n>=150?"heat-low":"heat-mid";
+        if(key==="Score")return n>=70?"heat-high":n<45?"heat-low":"heat-mid";
+        return"";
+      };
+      el.innerHTML=`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>{const vals=[r.ruleName,r.count,r.winRate,r.pf,r.expectancy,r.totalPips,r.maxDrawdown,r.score];return`<tr>${vals.map((v,i)=>`<td class="${valueClass(cols[i],v)}">${escapeHtml(i===2?`${fmt(v)}%`:i===4||i===5||i===6?`${fmt(v)}pips`:v)}</td>`).join("")}</tr>`}).join("")}</tbody></table>`;
+    }
+
+    function renderSessionWeekdayHeatmap(data){
+      const el=document.getElementById("sessionWeekdayHeatmap");
+      if(!data){el.textContent="データがありません。";return;}
+      const all=data.sessions.flatMap(s=>data.weekdays.map(w=>Math.abs(Number(data.values[s][w]||0))));
+      const max=Math.max(1,...all);
+      const cls=v=>v>max*.2?"heat-high":v<-max*.2?"heat-low":"heat-mid";
+      el.innerHTML=`<table><thead><tr><th>時間帯</th>${data.weekdays.map(w=>`<th>${w}</th>`).join("")}</tr></thead><tbody>${data.sessions.map(s=>`<tr><th>${escapeHtml(s)}</th>${data.weekdays.map(w=>{const v=data.values[s][w];return`<td class="${cls(v)}">${pips(v)}</td>`}).join("")}</tr>`).join("")}</tbody></table>`;
+    }
+
+    function renderMonthlyRanking(rows){
+      const el=document.getElementById("monthlyRanking");
+      if(!rows?.length){el.textContent="データがありません。";return;}
+      const ranked=[...rows].sort((a,b)=>b.totalPips-a.totalPips).map((r,i)=>({...r,rank:i+1}));
+      el.innerHTML=tableHtml(ranked,["順位","月","件数","勝率","PF","期待値","総pips","最大DD"],r=>[r.rank,r.label,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),pips(-r.maxDrawdown)],false);
+    }
+
+    function refreshEquityChart(){
+      const a=simulatorResults?.advancedAnalysis;
+      if(!a?.equity)return;
+      const value=document.getElementById("equityRange")?.value||"ALL";
+      const rows=value==="ALL"?a.equity:a.equity.slice(-Number(value));
+      drawLineChart("equityChart",rows.map(x=>x.value));
+    }
+
     function buildImplementationPlan(overall,wf){
       const top=overall[0];
       const second=overall[1];
@@ -204,9 +581,32 @@
 
     function renderAll(d){
       const m=d.meta;
-      document.getElementById("summary").innerHTML=`<div class="stat"><span>読み込み本数</span><strong>${m.loadedRows.toLocaleString()}</strong></div><div class="stat"><span>有効本数</span><strong>${m.validBars.toLocaleString()}</strong></div><div class="stat"><span>期間</span><strong>${escapeHtml(m.startTime)}<br>${escapeHtml(m.endTime)}</strong></div><div class="stat"><span>解析対象本数</span><strong>${m.analyzedBars.toLocaleString()}</strong></div>`;
-      document.getElementById("finalJudgement").innerHTML=`<strong>${d.finalJudgement.rank}：${escapeHtml(d.finalJudgement.label)}</strong><br><span class="small">${escapeHtml(d.finalJudgement.reason)}</span>`;
-      renderEntrySummary(d.ruleEntrySummary);renderExitComparison(d.exitComparison);renderRuleBest(d.ruleBestExitRanking);renderOverall(d.overallRanking);renderWalkForward(d.walkForwardResults);renderPlan(d.implementationPlan);
+      document.getElementById("summary").innerHTML=`<div class="stat"><span>Symbol</span><strong>${escapeHtml(m.symbol)}</strong></div><div class="stat"><span>Broker Symbol</span><strong>${escapeHtml(m.brokerSymbol)}</strong></div><div class="stat"><span>Timeframe</span><strong>${escapeHtml(m.timeframe)}</strong></div><div class="stat"><span>PipSize</span><strong>${fmt(m.pipSize)}</strong></div><div class="stat"><span>読み込み本数</span><strong>${m.loadedRows.toLocaleString()}</strong></div><div class="stat"><span>有効本数</span><strong>${m.validBars.toLocaleString()}</strong></div><div class="stat"><span>期間</span><strong>${escapeHtml(m.startTime)}<br>${escapeHtml(m.endTime)}</strong></div><div class="stat"><span>解析対象本数</span><strong>${m.analyzedBars.toLocaleString()}</strong></div>`;
+      document.getElementById("finalJudgement").innerHTML=`<span class="pill">${escapeHtml(m.symbol)}</span><br><strong>${d.finalJudgement.rank}：${escapeHtml(d.finalJudgement.label)}</strong><br><span class="small">${escapeHtml(d.finalJudgement.reason)}</span>`;
+      renderEntrySummary(d.ruleEntrySummary);renderExitComparison(d.exitComparison);renderRuleBest(d.ruleBestExitRanking);renderOverall(d.overallRanking);renderWalkForward(d.walkForwardResults);renderPlan(d.implementationPlan);renderAdvancedAnalysis(d.advancedAnalysis);
+      const top=d.overallRanking?.[0];
+      const score=strategyScore(top,d.walkForwardResults);
+      const health=researchHealthScore(d.research);
+      const monthly=d.advancedAnalysis?.monthly||[];
+      const sessions=d.advancedAnalysis?.sessions||[];
+      const bestMonth=[...monthly].sort((a,b)=>b.totalPips-a.totalPips)[0];
+      const worstMonth=[...monthly].sort((a,b)=>a.totalPips-b.totalPips)[0];
+      const bestSession=[...sessions].sort((a,b)=>b.totalPips-a.totalPips)[0];
+      const wf=top?d.walkForwardResults.find(x=>x.ruleName===top.ruleName&&x.exitMethod===top.exitMethod):null;
+      document.getElementById("strategyScore").textContent=top?`${score}点`:"--";
+      document.getElementById("strategyScoreBar").style.width=`${score}%`;
+      document.getElementById("researchHealth").textContent=health.label;
+      document.getElementById("bestRuleDash").textContent=top?top.ruleName:"--";
+      document.getElementById("bestExitDash").textContent=top?top.exitMethod:"--";
+      document.getElementById("bestMonthDash").innerHTML=bestMonth?`<span class="badgeBest">${escapeHtml(bestMonth.label)} ${pips(bestMonth.totalPips)}</span>`:"--";
+      document.getElementById("worstMonthDash").innerHTML=worstMonth?`<span class="badgeWorst">${escapeHtml(worstMonth.label)} ${pips(worstMonth.totalPips)}</span>`:"--";
+      document.getElementById("bestSessionDash").textContent=bestSession?`${bestSession.label} ${pips(bestSession.totalPips)}`:"--";
+      document.getElementById("walkForwardDash").textContent=wf?wf.overfitJudgement:"--";
+      const ruleHeat=buildRuleHeatmap(d.exitComparison);
+      renderRuleHeatmap(ruleHeat);
+      renderSessionWeekdayHeatmap(d.advancedAnalysis?.sessionWeekday);
+      renderMonthlyRanking(monthly);
+      d.advancedAnalysis.ruleHeatmap=ruleHeat;
     }
     function renderEntrySummary(rows){document.getElementById("entrySummary").innerHTML=tableHtml(rows,["Rule","方向","条件","件数","最初","最後"],r=>[r.ruleName,r.direction,pills(r.conditions),r.count,r.firstEntry,r.lastEntry],true)}
     function renderExitComparison(rows){document.getElementById("exitComparison").innerHTML=tableHtml(rows.slice(0,220),["Rule","方向","決済方式","spread","件数","勝率","PF","期待値","総pips","最大連敗","最大DD","平均保有"],r=>[r.ruleName,r.direction,r.exitMethod,r.spread,r.count,pct(r.winRate),fmt(r.pf),pips(r.expectancy),pips(r.totalPips),r.maxLosingStreak,pips(-r.maxDrawdown),`${r.avgHoldMinutes}分`],false)}
@@ -215,9 +615,9 @@
     function renderWalkForward(rows){document.getElementById("walkForwardResults").innerHTML=tableHtml(rows,["Rule","決済方式","前半件数","後半件数","前半PF","後半PF","前半期待値","後半期待値","劣化率","判定"],r=>[r.ruleName,r.exitMethod,r.trainCount,r.testCount,fmt(r.trainPF),fmt(r.testPF),pips(r.trainExpectancy),pips(r.testExpectancy),`${fmt(r.degradationRate)}%`,r.overfitJudgement],false)}
     function renderPlan(p){document.getElementById("implementationPlan").innerHTML=`<div class="stat"><strong>実装候補1</strong><div>${escapeHtml(p.candidate1)}</div></div><br><div class="stat"><strong>実装候補2</strong><div>${escapeHtml(p.candidate2)}</div></div><br><div class="stat"><strong>SELL Rule A</strong><div>${escapeHtml(p.sellRule)}</div></div><br><div class="stat"><strong>注意</strong><div>${escapeHtml(p.note)}</div></div>`}
 
-    function parseCsvBars(text){const rows=parseCsv(text).filter(r=>r.some(c=>String(c).trim()!==""));const headers=rows[0].map(h=>normalizeHeader(h));const hasHeader=headers.some(h=>["datetime","time","date","日時"].includes(h))||headers.includes("close")||headers.includes("終値");const body=hasHeader?rows.slice(1):rows;const idx=hasHeader?{time:findHeader(headers,["日時","datetime","time","date"]),open:findHeader(headers,["始値","open"]),high:findHeader(headers,["高値","high"]),low:findHeader(headers,["安値","low"]),close:findHeader(headers,["終値","close"])}:{time:0,open:1,high:2,low:3,close:4};let missingRows=0;const bars=body.map((row,sourceIndex)=>{const b={sourceIndex,time:parseDate(row[idx.time]),open:toNumber(row[idx.open]),high:toNumber(row[idx.high]),low:toNumber(row[idx.low]),close:toNumber(row[idx.close])};if(!b.time||![b.open,b.high,b.low,b.close].every(Number.isFinite))missingRows++;return b}).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time).map((b,i)=>({...b,index:i}));return{bars,loadedRows:body.length,missingRows}}
+    function parseCsvBars(text){const rows=parseCsv(text).filter(r=>r.some(c=>String(c).trim()!==""));if(!rows.length)throw new Error("CSVが空です。");const headers=rows[0].map(h=>normalizeHeader(h));const hasHeader=headers.some(h=>["datetime","time","date","日時"].includes(h))||headers.includes("close")||headers.includes("終値");const body=hasHeader?rows.slice(1):rows;const idx=hasHeader?{time:findHeader(headers,["日時","datetime","time","date"]),open:findHeader(headers,["始値","open"]),high:findHeader(headers,["高値","high"]),low:findHeader(headers,["安値","low"]),close:findHeader(headers,["終値","close"]),symbol:findHeader(headers,["symbol","currencypair","currency_pair","broker_symbol","brokersymbol","銘柄","通貨ペア"])}:{time:0,open:1,high:2,low:3,close:4,symbol:-1};if([idx.time,idx.open,idx.high,idx.low,idx.close].some(i=>i<0))throw new Error("日時・始値・高値・安値・終値の列を確認できませんでした。");let missingRows=0,detectedSymbol="";const bars=body.map((row,sourceIndex)=>{if(!detectedSymbol&&idx.symbol>=0)detectedSymbol=String(row[idx.symbol]||"").trim();const b={sourceIndex,time:parseDate(row[idx.time]),open:toNumber(row[idx.open]),high:toNumber(row[idx.high]),low:toNumber(row[idx.low]),close:toNumber(row[idx.close])};if(!b.time||![b.open,b.high,b.low,b.close].every(Number.isFinite))missingRows++;return b}).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time).map((b,i)=>({...b,index:i}));return{bars,loadedRows:body.length,missingRows,detectedSymbol}}
     function enrichBars(bars){let ema=bars[0].close;const alpha=2/(EMA_PERIOD+1);let avgGain=0,avgLoss=0;bars.forEach((bar,i)=>{if(i===0)bar.ema20=bar.close;else{ema=bar.close*alpha+ema*(1-alpha);bar.ema20=ema}if(i>0){const diff=bar.close-bars[i-1].close,gain=Math.max(0,diff),loss=Math.max(0,-diff);if(i<=RSI_PERIOD){avgGain+=gain;avgLoss+=loss;if(i===RSI_PERIOD){avgGain/=RSI_PERIOD;avgLoss/=RSI_PERIOD;bar.rsi=calcRsi(avgGain,avgLoss)}}else{avgGain=(avgGain*(RSI_PERIOD-1)+gain)/RSI_PERIOD;avgLoss=(avgLoss*(RSI_PERIOD-1)+loss)/RSI_PERIOD;bar.rsi=calcRsi(avgGain,avgLoss)}}const s=bars.slice(Math.max(0,i-BB_PERIOD+1),i+1);if(s.length>=BB_PERIOD){const mid=average(s.map(b=>b.close)),sd=Math.sqrt(average(s.map(b=>Math.pow(b.close-mid,2))));bar.bbMid=mid;bar.bbUpper=mid+sd*2;bar.bbLower=mid-sd*2;bar.bbPosition=classifyBb(bar)}else bar.bbPosition="BB不足";bar.session=getSession(bar.time);bar.recent10=recentPips(bars,i,10);bar.recent3=recentPips(bars,i,3);bar.candleType=bar.close>=bar.open?"陽線":"陰線";const v=bars.slice(Math.max(0,i-9),i+1);bar.volatility=average(v.map(b=>(b.high-b.low)*PIP));bar.volBucket=bucketVol(bar.volatility);bar.surgeType=bar.recent3>=3?"急騰":bar.recent3<=-3?"急落":"通常"})}
-    function downloadJson(){if(!simulatorResults)return;const blob=new Blob([JSON.stringify(simulatorResults,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="simulator_results_v1.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+    function downloadJson(){if(!simulatorResults)return;simulatorResults.research=exportResearchState();const blob=new Blob([JSON.stringify(simulatorResults,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="simulator_results_v2_4_final.json";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
     function tableHtml(rows,headers,mapper,trusted){if(!rows.length)return"該当データがありません。";return`<table><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${mapper(row).map(cell=>`<td class="${String(cell).includes("%")?heatClass(parseFloat(cell)):""}">${trusted?cell:escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
     function pills(items){return items.map(x=>`<span class="pill">${escapeHtml(x)}</span>`).join(" ")}
     function heatClass(rate){if(!Number.isFinite(rate))return"";if(rate>=60)return"heat-high";if(rate<=45)return"heat-low";return"heat-mid"}
@@ -232,6 +632,8 @@
     function parseDate(value){const raw=String(value||"").trim().replace(/\./g,"-").replace("T"," ");const m=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);if(m)return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]||0));const d=new Date(raw);return Number.isFinite(d.getTime())?d:null}
     function toNumber(v){const n=Number(String(v??"").replace(/,/g,"").trim());return Number.isFinite(n)?n:NaN}
     function average(a){return a.length?sum(a)/a.length:0}function sum(a){return a.reduce((x,y)=>x+Number(y||0),0)}function round(v,d=2){return Number(Number(v||0).toFixed(d))}function fmt(v){return Number.isFinite(Number(v))?Number(v).toLocaleString(undefined,{maximumFractionDigits:2}):"--"}function pct(v){return`${fmt(v)}%`}function pips(v){return`${Number(v)>=0?"+":""}${fmt(v)}pips`}function signed(v){return`${Number(v)>=0?"+":""}${fmt(v)}`}function formatDateTime(d){return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`}function pad(v){return String(v).padStart(2,"0")}function setStatus(t){document.getElementById("status").textContent=t}function breathe(){return new Promise(r=>setTimeout(r,0))}function escapeHtml(v){return String(v??"").replace(/[&<>"]/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[s]))}
+      renderResearchIntegration();
+      window.addEventListener("resize",()=>{if(simulatorResults?.advancedAnalysis)renderAdvancedAnalysis(simulatorResults.advancedAnalysis)});
   </script>
 </body>
 </html>
